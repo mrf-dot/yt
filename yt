@@ -1,4 +1,4 @@
-#!/usr/local/bin/pwsh
+#!/bin/env pwsh
 param (
 	$option
 )
