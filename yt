@@ -1,9 +1,9 @@
-#!/bin/pwsh
+#!/usr/local/bin/pwsh
 param (
-	[switch]$option
+	$option
 )
 # Define your google api key here
-$env:GoogleApiKey = "AIzaSyARpjRn7-t39LyzGTSgoiPZcU8QVA7fi0I"
+$env:GoogleApiKey = "AIzaSyAr9WbWmgDQ4EkMBS4AsWj9ikkKODNZs78"
 
 # Search Youtube and return video url
 function global:syt {
@@ -96,7 +96,7 @@ function global:yaudio {
 		[string] $playlist
 	)
 	if ($url) {
-		yt-dlp $url -i --restrict-filenames --extract-audio --audio-format mp3 --audio-quality 0 -o $env:USERPROFILE/music/$playlist/"%(title)s.(ext)s"
+		yt-dlp $url -i --restrict-filenames --extract-audio --audio-format mp3 --audio-quality 0 -o $HOME/Music/$playlist/"%(title)s.(ext)s"
 	}
 }
 
@@ -154,7 +154,8 @@ function global:help {
 
 Switch ($option) {
 	"i" {yt}
-	"a" {dya}
+	"a" {yaudio $(syt)}
 	"ap" {dya}
 	"vp" {youtube $(syp)}
 	Default {help}
+}
