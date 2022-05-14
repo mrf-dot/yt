@@ -101,16 +101,33 @@ function global:yaudio {
 }
 
 # Download youtube url to videos directory
-function global:youtube {
+function global:yvideo {
 	param (
-		[string] $url
+		[string] $url,
+		[string] $playlist
 	)
 	if ($url) {
-		yt-dlp $url --restrict-filenames -o "$env:userprofile/Videos/%(title)s.%(ext)s" --all-subs -f "bv[height<=?1080][fps<=?30]+ba"
+		yt-dlp $url --restrict-filenames -o "$HOME/Videos/$playlist/%(title)s.%(ext)s" --all-subs -f "bv[height<=?1080][fps<=?30]+ba"
 	}
 }
 
-function global:dya {
+function global:da {
+	param (
+		[Parameter(Mandatory = $true, Position = 0)]
+		[string] $query
+		)
+	yaudio $(syt $query)
+}
+
+function global:dv {
+	param (
+		[Parameter(Mandatory = $true, Position = 0)]
+		[string] $query
+		)
+	yvideo $(syt $query)
+}
+
+function global:dap {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)]
 		[string] $query,
@@ -120,9 +137,19 @@ function global:dya {
 	yaudio $(syp $query) $folder
 }
 
-function global:dyt {
-	youtube $(syt)
+function global:dvp {
+	param (
+		[Parameter(Mandatory = $true, Position = 0)]
+		[string] $query,
+		[Parameter(Mandatory = $true, Position = 1)]
+		[string] $folder
+		)
+	yvideo $(syp $query) $folder
 }
+
+
+
+
 
 # Watch youtube videos over command line
 function global:yt {
@@ -153,9 +180,10 @@ function global:help {
 }
 
 Switch ($option) {
-	"i" {yt}
-	"a" {yaudio $(syt)}
-	"ap" {dya}
-	"vp" {youtube $(syp)}
+	"i" {yt; break}
+	"a" {da; break}
+	"v" {dv; break}
+	"ap" {dap; break}
+	"vp" {dvp; break}
 	Default {help}
 }
