@@ -162,7 +162,7 @@ function global:yt {
 		if ($search -and !($search.equals("exit"))) {
 			$selection = $(syt $search)
 			if ($selection) {
-				mpv $selection --no-terminal
+				mpv $selection --no-terminal 2>$null
 			}
 		}
 	} until ($search.equals("exit"))
