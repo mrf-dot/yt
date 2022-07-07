@@ -6,12 +6,12 @@ param (
 $env:GoogleApiKey = "AIzaSyAr9WbWmgDQ4EkMBS4AsWj9ikkKODNZs78"
 
 # Search Youtube and return video url
-function global:syt {
+function Search-YoutubeVideo {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)]
 		[string] $query
 	)
-	$query = $query -replace '\s+', '+'
+	$query = [uri]::EscapeDataString($query)
 	$searchUri = "https://www.googleapis.com/youtube/v3/search?q=$query&key=$env:GoogleApiKey&maxResults=20&part=snippet&type=video"
 	$response = Invoke-RestMethod -Uri $searchUri -Method Get
 	# Creates table of result number, video title, and channel
@@ -49,12 +49,12 @@ function global:syt {
 	return "https://youtube.com/watch?v=$($response.items[$selection - 1].id.videoId)"
 }
 
-function global:syp {
+function Search-YoutubePlaylist {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)]
 		[string] $query
 	)
-	$query = $query -replace '\s+', '+'
+	$query = [uri]::EscapeDataString($query)
 	$searchUri = "https://www.googleapis.com/youtube/v3/search?q=$query&key=$env:GoogleApiKey&maxResults=5&part=snippet&type=playlist"
 	$response = Invoke-RestMethod -Uri $searchUri -Method Get
 	# Creates table of result number, video title, and channel
@@ -89,101 +89,68 @@ function global:syp {
 	return "https://youtube.com/playlist?list=$($response.items[$selection - 1].id.playlistId)"
 }
 
-# Download music from youtube to music directory
-function global:yaudio {
-	param (
-		[string] $url,
-		[string] $playlist
-	)
-	if ($url) {
-		yt-dlp $url -i --restrict-filenames --extract-audio --audio-format mp3 --audio-quality 0 -o $HOME/Music/$playlist/"%(title)s.(ext)s"
-	}
-}
-
-# Download youtube url to videos directory
-function global:yvideo {
-	param (
-		[string] $url,
-		[string] $playlist
-	)
-	if ($url) {
-		yt-dlp $url --restrict-filenames -o "$HOME/Videos/$playlist/%(title)s.%(ext)s" --all-subs -f "bv[height<=?1080][fps<=?30]+ba"
-	}
-}
-
-function global:da {
+function Download-YoutubeAudio {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)]
 		[string] $query
-		)
-	yaudio $(syt $query)
+	)
+	youtube-dl $(Search-YoutubeVideo $query) --restrict-filenames -x --audio-format mp3 -o "$HOME/Music/%(title)s.(ext)s"
 }
-
-function global:dv {
+function Download-YoutubeVideo {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)]
 		[string] $query
-		)
-	yvideo $(syt $query)
-}
+	)
+	youtube-dl $(Search-YoutubeVideo $query) --restrict-filenames -f "bestvideo[ext=mp4][height<=?1080][fps<=?30]+bestaudio[ext=m4a]/best[ext=mp4]/best" -o "$HOME/Videos/%(title)s.%(ext)s"
 
-function global:dap {
+}
+function Download-YoutubeAudioPlaylist {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)]
 		[string] $query,
 		[Parameter(Mandatory = $true, Position = 1)]
-		[string] $folder
-		)
-	yaudio $(syp $query) $folder
+		[string] $PlaylistName
+	)
+	youtube-dl $(Search-YoutubePlaylist $query) --restrict-filenames -x --audio-format mp3 -o "$HOME/Music/$PlaylistName/%(title)s.(ext)s"
 }
-
-function global:dvp {
+function Download-YoutubeVideoPlaylist {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)]
 		[string] $query,
 		[Parameter(Mandatory = $true, Position = 1)]
-		[string] $folder
-		)
-	yvideo $(syp $query) $folder
+		[string] $PlaylistName
+	)
+	youtube-dl $(Search-YoutubePlaylist $query) --restrict-filenames -f "bv[ext=mp4][height<=?1080][fps<=?30]+bestaudio[ext=m4a]/best[ext=mp4]/best" -o "$HOME/Videos/$PlaylistName/%(title)s.%(ext)s"
 }
-
-
-
-
 
 # Watch youtube videos over command line
-function global:yt {
-	$search = ""
-	do {
-		$query = Read-Host "Search for a video"
-		if ($query) {
-			$search = $query
+function Watch-Youtube {
+	while ($true) {
+		$search = Read-Host "Search for a video"
+		if ($search) {
+			$url = $(Search-YoutubeVideo $search)
 		}
-		if ($search -and !($search.equals("exit"))) {
-			$selection = $(syt $search)
-			if ($selection) {
-				mpv $selection --no-terminal 2>$null
-			}
+		if ($url) {
+			mpv $url --no-terminal 2>$null
 		}
-	} until ($search.equals("exit"))
-}
-
-function global:help {
-	echo "YT -- Authored by Mitch Feigenbaum"
-	echo "Options:"
-	echo "`ti`t`tRun in interactive search mode"
-	echo "`ta`t`tDownload audio from YouTube"
-	echo "`tv`t`tDownload video from YouTube"
-	echo "`tap`t`tDownload an audio playlist from YouTube"
-	echo "`tvp`t`tDownload a video playlist from YouTube"
-	echo "`th`t`tPrint this help message"
+	}
 }
 
 Switch ($option) {
-	"i" {yt; break}
-	"a" {da; break}
-	"v" {dv; break}
-	"ap" {dap; break}
-	"vp" {dvp; break}
-	Default {help}
+	"i" { Watch-Youtube; Break }
+	"a" { Download-YoutubeAudio; Break }
+	"v" { Download-YoutubeVideo; Break }
+	"ap" { Download-YoutubeAudioPlaylist; Break }
+	"vp" { Download-YoutubeVideoPlaylist; Break }
+	Default {
+		echo "YT -- Authored by Mitch Feigenbaum
+Options:
+`ti`t`tRun in interactive search mode
+`ta`t`tDownload audio from YouTube
+`tv`t`tDownload video from YouTube
+`tap`t`tDownload an audio playlist from YouTube
+`tvp`t`tDownload a video playlist from YouTube
+`th`t`tPrint this help message"
+		Break
+ }
 }
