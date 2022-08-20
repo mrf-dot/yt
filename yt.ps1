@@ -92,17 +92,26 @@ function Search-YoutubePlaylist {
 function Download-YoutubeAudio {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)]
-		[string] $query
+		[string] $query,
+		[Parameter(Mandatory = $true, Position = 1)]
+		[string] $AudioName
 	)
-	youtube-dl $(Search-YoutubeVideo $query) --restrict-filenames -x --audio-format mp3 -o "$HOME/Music/%(title)s.(ext)s"
+	$url = Search-YoutubeVideo $query
+	if ($url) {
+		youtube-dl $url--restrict-filenames -x --audio-format mp3 -o "$HOME/Music/$AudioName.mp3"
+	}
 }
 function Download-YoutubeVideo {
 	param (
 		[Parameter(Mandatory = $true, Position = 0)]
-		[string] $query
+		[string] $query,
+		[Parameter(Mandatory = $true, Position = 1)]
+		[string] $VideoName
 	)
-	youtube-dl $(Search-YoutubeVideo $query) --restrict-filenames -f "bestvideo[ext=mp4][height<=?1080][fps<=?30]+bestaudio[ext=m4a]/best[ext=mp4]/best" -o "$HOME/Videos/%(title)s.%(ext)s"
-
+	$url = Search-YoutubeVideo $query
+	if ($url) {
+		youtube-dl $url--restrict-filenames -f "bestvideo[ext=mp4][height<=?1080][fps<=?30][ext=mp4]+bestaudio[ext=m4a]" -o "$HOME/Videos/$VideoName.%(ext)s"
+	}
 }
 function Download-YoutubeAudioPlaylist {
 	param (
@@ -111,7 +120,10 @@ function Download-YoutubeAudioPlaylist {
 		[Parameter(Mandatory = $true, Position = 1)]
 		[string] $PlaylistName
 	)
-	youtube-dl $(Search-YoutubePlaylist $query) --restrict-filenames -x --audio-format mp3 -o "$HOME/Music/$PlaylistName/%(title)s.(ext)s"
+	$url = Search-YoutubePlaylist $query
+	if ($url) {
+		youtube-dl $url --restrict-filenames -x --audio-format mp3 -o "$HOME/Music/$PlaylistName/%(title)s.(ext)s"
+	}
 }
 function Download-YoutubeVideoPlaylist {
 	param (
@@ -120,7 +132,10 @@ function Download-YoutubeVideoPlaylist {
 		[Parameter(Mandatory = $true, Position = 1)]
 		[string] $PlaylistName
 	)
-	youtube-dl $(Search-YoutubePlaylist $query) --restrict-filenames -f "bv[ext=mp4][height<=?1080][fps<=?30]+bestaudio[ext=m4a]/best[ext=mp4]/best" -o "$HOME/Videos/$PlaylistName/%(title)s.%(ext)s"
+	$url = Search-YoutubePlaylist $query
+	if ($url) {
+		youtube-dl $url --restrict-filenames -f "bv[ext=mp4][height<=?1080][fps<=?30]+bestaudio[ext=m4a]/best[ext=mp4]/best" -o "$HOME/Videos/$PlaylistName/%(title)s.%(ext)s"
+	}
 }
 
 # Watch youtube videos over command line
@@ -130,7 +145,7 @@ function Watch-Youtube {
 		if ($search) {
 			$url = $(Search-YoutubeVideo $search)
 		}
-		if ($url) {
+		if ($url -and $search) {
 			mpv $url --no-terminal 2>$null
 		}
 	}
@@ -143,7 +158,7 @@ Switch ($option) {
 	"ap" { Download-YoutubeAudioPlaylist; Break }
 	"vp" { Download-YoutubeVideoPlaylist; Break }
 	Default {
-		echo "YT -- Authored by Mitch Feigenbaum
+		Write-Output "YT -- Authored by Mitch Feigenbaum
 Options:
 `ti`t`tRun in interactive search mode
 `ta`t`tDownload audio from YouTube
@@ -152,5 +167,5 @@ Options:
 `tvp`t`tDownload a video playlist from YouTube
 `th`t`tPrint this help message"
 		Break
- }
+	}
 }
