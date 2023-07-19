@@ -2,7 +2,6 @@
 param (
 	$option
 )
-
 # Define your google api at the top of C:\Users\<Username>\p.ps1 (in your home directory) like this:
 # $env:GoogleApiKey = 'your api key goes here'
 # Then add this file to anywhere in your path
@@ -18,7 +17,7 @@ If you do not have an API key, go to https://console.cloud.google.com/apis/crede
 
 
 # Video and audio arguments
-$vArgs = "--restrict-filenames --recode-video mp4 -f 'bestvideo[height<=?1080][fps<=?30][vcodec!=?vp9]+bestaudio'"
+$vArgs = "--embed-subs --embed-metadata --embed-thumbnail -f 'bestvideo[height<=?1080][vcodec!=?vp9]+bestaudio' --sponsorblock-remove all,-filler"
 $aArgs = "--restrict-filenames --extract-audio --audio-format mp3"
 
 # Form the URLS
@@ -117,7 +116,7 @@ function Download-YoutubeAudio {
 	)
 	$url = Search-YoutubeVideo $query
 	if ($url) {
-		Invoke-Expression "youtube-dl $url $aArgs -o '$HOME/Music/$AudioName.%(ext)s'"
+		Invoke-Expression "yt-dlp $url $aArgs -o '$HOME/Music/$AudioName.%(ext)s'"
 	}
 }
 function Download-YoutubeVideo {
@@ -129,7 +128,7 @@ function Download-YoutubeVideo {
 	)
 	$url = Search-YoutubeVideo $query
 	if ($url) {
-		Invoke-Expression "youtube-dl $url $vArgs -o '$HOME/Videos/$VideoName.%(ext)s'"
+		Invoke-Expression "yt-dlp $url $vArgs -o '$HOME/Videos/$VideoName.%(ext)s'"
 	}
 }
 function Download-YoutubeAudioPlaylist {
@@ -141,7 +140,7 @@ function Download-YoutubeAudioPlaylist {
 	)
 	$url = Search-YoutubePlaylist $query
 	if ($url) {
-		Invoke-Expression "youtube-dl $url $aArgs -o '$HOME/Music/$PlaylistName/%(title)s.(ext)s'"
+		Invoke-Expression "yt-dlp $url $aArgs -o '$HOME/Music/$PlaylistName/%(title)s.%(ext)s'"
 	}
 }
 function Download-YoutubeVideoPlaylist {
@@ -153,7 +152,7 @@ function Download-YoutubeVideoPlaylist {
 	)
 	$url = Search-YoutubePlaylist $query
 	if ($url) {
-		Invoke-Expression "youtube-dl $url $vArgs -o '$HOME/Videos/$PlaylistName/%(title)s.%(ext)s'"
+		Invoke-Expression "yt-dlp $url $vArgs -o '$HOME/Videos/$PlaylistName/%(title)s.%(ext)s'"
 	}
 }
 
@@ -165,7 +164,7 @@ function Watch-Youtube {
 			$url = $(Search-YoutubeVideo $search)
 		}
 		if ($url -and $search) {
-			mpv $url --no-terminal 2>$null
+			mpv $url --no-terminal 2> $null
 		}
 	}
 }
