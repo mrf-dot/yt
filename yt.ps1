@@ -2,6 +2,7 @@
 param (
 	$option
 )
+$env:GoogleApiKey = Get-Content /usr/local/bin/ytapikey # This should *not* be committed as this is my private api key
 # Define your google api at the top of C:\Users\<Username>\p.ps1 (in your home directory) like this:
 # $env:GoogleApiKey = 'your api key goes here'
 # Then add this file to anywhere in your path
@@ -17,8 +18,8 @@ If you do not have an API key, go to https://console.cloud.google.com/apis/crede
 
 
 # Video and audio arguments
-$vArgs = "--embed-subs --embed-metadata --embed-thumbnail -f 'bestvideo[height<=?1080][vcodec!=?vp9]+bestaudio' --sponsorblock-remove all,-filler"
-$aArgs = "--restrict-filenames --extract-audio --audio-format mp3"
+$vArgs = "--quiet --embed-subs --embed-metadata -f 'bestvideo[height<=?1080][vcodec!=vp9]+bestaudio' --sponsorblock-remove all,-filler"
+$aArgs = "--quiet --restrict-filenames --extract-audio --audio-format mp3"
 
 # Form the URLS
 $baseUrl = "https://www.googleapis.com/youtube/v3/search?q="
@@ -112,11 +113,11 @@ function Download-YoutubeAudio {
 		[Parameter(Mandatory = $true, Position = 0)]
 		[string] $query,
 		[Parameter(Mandatory = $true, Position = 1)]
-		[string] $AudioName
+		[string] $Filename
 	)
 	$url = Search-YoutubeVideo $query
 	if ($url) {
-		Invoke-Expression "yt-dlp $url $aArgs -o '$HOME/Music/$AudioName.%(ext)s'"
+		Invoke-Expression "youtube-dl $url $aArgs -o '$HOME/Music/$Filename.%(ext)s'"
 	}
 }
 function Download-YoutubeVideo {
@@ -124,11 +125,11 @@ function Download-YoutubeVideo {
 		[Parameter(Mandatory = $true, Position = 0)]
 		[string] $query,
 		[Parameter(Mandatory = $true, Position = 1)]
-		[string] $VideoName
+		[string] $Filename
 	)
 	$url = Search-YoutubeVideo $query
 	if ($url) {
-		Invoke-Expression "yt-dlp $url $vArgs -o '$HOME/Videos/$VideoName.%(ext)s'"
+		Invoke-Expression "youtube-dl $url $vArgs -o '$HOME/Videos/$Filename.%(ext)s'"
 	}
 }
 function Download-YoutubeAudioPlaylist {
@@ -136,11 +137,11 @@ function Download-YoutubeAudioPlaylist {
 		[Parameter(Mandatory = $true, Position = 0)]
 		[string] $query,
 		[Parameter(Mandatory = $true, Position = 1)]
-		[string] $PlaylistName
+		[string] $Foldername
 	)
 	$url = Search-YoutubePlaylist $query
 	if ($url) {
-		Invoke-Expression "yt-dlp $url $aArgs -o '$HOME/Music/$PlaylistName/%(title)s.%(ext)s'"
+		Invoke-Expression "youtube-dl $url $aArgs -o '$HOME/Music/$Foldername/%(title)s.%(ext)s'"
 	}
 }
 function Download-YoutubeVideoPlaylist {
@@ -148,11 +149,11 @@ function Download-YoutubeVideoPlaylist {
 		[Parameter(Mandatory = $true, Position = 0)]
 		[string] $query,
 		[Parameter(Mandatory = $true, Position = 1)]
-		[string] $PlaylistName
+		[string] $Foldername
 	)
 	$url = Search-YoutubePlaylist $query
 	if ($url) {
-		Invoke-Expression "yt-dlp $url $vArgs -o '$HOME/Videos/$PlaylistName/%(title)s.%(ext)s'"
+		Invoke-Expression "youtube-dl $url $vArgs -o '$HOME/Videos/$Foldername/%(title)s.%(ext)s'"
 	}
 }
 
