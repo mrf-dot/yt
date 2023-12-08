@@ -39,13 +39,20 @@ cd yt
 Then, write your YouTube API key into a file called `ytapikey`.
 
 ```sh
-echo '<Your api key here>' > ytapikey
+echo '<Your API key here>' > ytapikey
+```
+
+Make the YT program executable.
+
+```sh
+cp yt.ps1 yt
+chmod +x yt
 ```
 
 Finally, move all the necessary files into the local bin directory.
 
 ```sh
-sudo mv youtube-dl yt.ps1 ytapikey /usr/local/bin/
+sudo cp youtube-dl yt ytapikey /usr/local/bin/
 ```
 
 Now, call the program.
