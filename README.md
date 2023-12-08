@@ -25,7 +25,7 @@ sudo apt-get install -y powershell
 python3 -m pip install -U yt-dlp
 ```
 
-You will also need a valid [YouTube API key](https://console.developers.google.com/).
+You will also need a valid [YouTube API key](https://console.cloud.google.com/apis/credentials).
 
 ### System Install
 
