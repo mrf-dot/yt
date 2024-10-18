@@ -18,8 +18,8 @@ If you do not have an API key, go to https://console.cloud.google.com/apis/crede
 
 
 # Video and audio arguments
-$vArgs = "--quiet --embed-subs --embed-metadata -f 'bestvideo[height<=?1080][vcodec!=vp9]+bestaudio' --sponsorblock-remove all,-filler"
-$aArgs = "--quiet --restrict-filenames --extract-audio --audio-format mp3"
+$vArgs = "--embed-subs -f 'bestvideo[height<=?1080]+bestaudio' --sponsorblock-remove all,-filler"
+$aArgs = "--extract-audio --audio-format mp3"
 
 # Form the URLS
 $baseUrl = "https://www.googleapis.com/youtube/v3/search?q="

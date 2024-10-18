@@ -9,6 +9,7 @@ A YouTube watching script for PowerShell
 Before the installation of the script, there are two required dependencies that need to be installed:
 
 * PowerShell
+* MPV
 * YT-DLP
 
 ```sh
@@ -20,7 +21,7 @@ wget -q https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-micros
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 sudo apt-get update
-sudo apt-get install -y powershell
+sudo apt-get install -y powershell mpv
 # Install yt-dlp
 python3 -m pip install -U yt-dlp
 ```
