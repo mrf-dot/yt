@@ -6,7 +6,7 @@ A YouTube watching script for PowerShell
 
 ### Prerequisites
 
-Before the installation of the script, there are two required dependencies that need to be installed:
+Before the installation of the script, there are three required dependencies that need to be installed:
 
 * PowerShell
 * MPV
